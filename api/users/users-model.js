@@ -37,7 +37,7 @@ async function findBy(filter) {
     ]
    */
   const result = db("users").join("roles", "roles.role_id", "users.role_id")
-  .where(filter).select("users.user_id", "users.username", "users.password", "roles.role_name")
+  .where(filter).select("users.user_id", "users.username", "users.password", "roles.role_name").first()
   return result;
 }
 

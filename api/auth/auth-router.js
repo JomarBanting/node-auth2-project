@@ -17,10 +17,10 @@ router.post("/register", validateRoleName, (req, res, next) => {
       "role_name": "angel"
     }
    */
-  let user = req.body
-  const hash = bcrypt.hashSync(user.password, BCRYPT_ROUNDS)
-  user.password = hash
-  User.add(user)
+  let {username, password} = req.body
+  const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS)
+  password = hash
+  User.add({username: username, password: password, role_name: req.role_name})
     .then(data => {
       res.status(201).json({
         user_id: data.user_id,
@@ -52,25 +52,23 @@ router.post("/login", checkUsernameExists, (req, res, next) => {
     }
    */
   let { username, password } = req.body
-
-  User.findBy({ username })
-    .then(([user]) => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const token = buildToken(user)
-        res.status(200).json({
-          message: `${username} is back!`,
-          token: token
-        })
-      } else {
-        next({ status: 401, message: 'Invalid Credentials' })
-      }
+  if (bcrypt.compareSync(password, req.user.password)) {
+    const token = buildToken(req.user)
+    res.status(200).json({
+      message: `${username} is back!`,
+      token: token
     })
-    .catch(next)
+  } else {
+    next({
+      status: 401,
+      message: "Invalid credentials"
+    })
+  }
 })
 
 function buildToken(user) {
   const payload = {
-    subject: user.id,
+    subject: user.user_id,
     username: user.username,
     role_name: user.role_name,
   }
