@@ -22,7 +22,7 @@ function find() {
   .select("users.user_id", "users.username", "roles.role_name")
 }
 
-function findBy(filter) {
+async function findBy(filter) {
   /**
     You will need to join two tables.
     Resolves to an ARRAY with all users that match the filter condition.
@@ -36,8 +36,9 @@ function findBy(filter) {
       }
     ]
    */
-  return db("users").join("roles", "roles.role_id", "users.role_id")
+  const result = db("users").join("roles", "roles.role_id", "users.role_id")
   .where(filter).select("users.user_id", "users.username", "users.password", "roles.role_name")
+  return result;
 }
 
 async function findById(user_id) {
